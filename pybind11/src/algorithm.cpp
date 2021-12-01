@@ -532,6 +532,7 @@ vector<vector<vector<uint8_t>>> calculate_steps_parallel(const int number_of_ste
 
     cout << "All worker threads finished!" << endl;
     return steps;
+    // return initialize_steps(10, 10);
 }
 
 // Define python module that will be created

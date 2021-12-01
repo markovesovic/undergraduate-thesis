@@ -1,4 +1,3 @@
-import sys
 import time
 import numpy as np
 import game_of_life_simulator as gof
@@ -28,9 +27,9 @@ def animate(steps):
 
 def main():
     # Number of iteration to simulate
-    number_of_steps = 50000
+    number_of_steps = 10000
     # Size of grid space in squares
-    grid_size = 100
+    grid_size = 200
     
     # Possible patterns for simulation
     possible_patterns = [
@@ -49,17 +48,20 @@ def main():
     start = time.perf_counter()
     
     # * Run cpp algorithm and retrieve result in steps var
-    steps_parallel = gof.calculate_steps_parallel(number_of_steps, grid_size, possible_patterns[5])
+
+    # steps_parallel = gof.calculate_steps_parallel(number_of_steps, grid_size, possible_patterns[5])
+
+    gof.calculate_steps_parallel(number_of_steps, grid_size, possible_patterns[5])
   
     print(f'Parallel algorithm took: {round(time.perf_counter() - start, 3)} s')
 
     # print(steps_parallel)
     
     # * Visualization using matplotlib
-    anim = animate(steps_parallel)
+    # anim = animate(steps_parallel)
     # figManager = plt.get_current_fig_manager()
     # figManager.full_screen_toggle()
-    plt.show()
+    # plt.show()
     
     # start = time.perf_counter()
     # gof.calculate_steps_sequential(number_of_steps, grid_size, possible_patterns[3])

@@ -1,0 +1,8 @@
+- Skines opencv sa githuba
+- Napravis module i ubacis ga u module
+- Instliraj cmake i pokrenes za opencv folder i napravis build folder
+- Prvo configure pa izaberes sta treba pa generate
+- Onda otvoris .sln file koji je izgenerisan u buildu za koji treba visual studio
+- Onda ides release verziju pa build pa install
+- Ako sve prodje kul cv2 je izgenerisan u global packageima
+- Ovo je za pomoc: https://docs.opencv.org/4.x/d5/de5/tutorial_py_setup_in_windows.html
