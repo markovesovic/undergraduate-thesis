@@ -3,8 +3,9 @@ import cv2 as cv
 import time
 
 import matplotlib.pyplot as plt
+import matplotlib
 
-# Optional
+
 plt.xkcd()
 
 
@@ -174,63 +175,137 @@ def fixed_grid():
     showTimes()
 
     plt.show()
+    
+    
+    
 
-import random
 
 def test():
-    
-    parallel_times = []
-    sequential_times = []
 
-    steps = []
-    sizes = []
-    
-    # for step in range(100, 1000, 100):
-    #     steps.append(step)
+    def calc(x, y, algorithm):
+        arr_ret = []
+        for arr_x, arr_y in zip(x, y):
+            values_ret = []
+            for value_x, value_y in zip(arr_x, arr_y):
+                
+                start = time.perf_counter()
+                if algorithm == 'parallel':
+                    cv.gof_simulator(value_y, value_x).parallel('gosper_gun')
+                else:
+                    cv.gof_simulator(value_y, value_x).sequential('gosper_gun')
+                # cv.gof_simulator(value_y, value_x).sequential('gosper_gun')
+                t = time.perf_counter() - start
+                values_ret.append(round(t, 3))
+            
+            arr_ret.append(values_ret)
         
-    # for size in range(10, 100, 10):
-    #     sizes.append(size)
+        return np.array(arr_ret)
     
-    for _ in range(50):
-        sizes.append(random.randrange(10, 450, 10))
-        steps.append(random.randrange(100, 10000, 250))
     
+    def heatmap(data, row_labels, col_labels, ax=None,
+            cbar_kw={}, cbarlabel="", **kwargs):
         
-    for step, size in zip(steps, sizes):
-        simulator = cv.gof_simulator(size, step)
+        if not ax:
+            ax = plt.gca()
 
-        start = time.perf_counter()
-        _ = simulator.parallel('gosper_gun')
-        parallel_times.append(time.perf_counter() - start)
+        im = ax.imshow(data, **kwargs)
+
+        cbar = ax.figure.colorbar(im, ax=ax, **cbar_kw)
+        cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
+
+        ax.set_xticks(np.arange(data.shape[1]), labels=col_labels)
+        ax.set_yticks(np.arange(data.shape[0]), labels=row_labels)
+
+        ax.tick_params(top=True, bottom=False,
+                    labeltop=True, labelbottom=False)
+
+        plt.setp(ax.get_xticklabels(), rotation=-30, ha="right",
+                rotation_mode="anchor")
+
+        ax.spines[:].set_visible(False)
         
-        start = time.perf_counter()
-        _ = simulator.sequential('gosper_gun')
-        sequential_times.append(time.perf_counter() - start)
+        ax.set_title('Speed of execution for grid size and number of iterations')
+
+        ax.set_xticks(np.arange(data.shape[1]+1)-.5, minor=True)
+        ax.set_yticks(np.arange(data.shape[0]+1)-.5, minor=True)
+        ax.grid(which="minor", color="w", linestyle='-', linewidth=3)
+        ax.tick_params(which="minor", bottom=False, left=False)
+        
+        return im, cbar
 
 
-    fig = plt.figure(figsize=(6, 6))
-    ax = fig.add_subplot(111, projection='3d')
+    def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
+                        threshold=None, **textkw):
+
+        if not isinstance(data, (list, np.ndarray)):
+            data = im.get_array()
+
+        if threshold is not None:
+            threshold = im.norm(threshold)
+        else:
+            threshold = im.norm(data.max())/2.
+
+        kw = dict(horizontalalignment="center",
+                verticalalignment="center")
+        kw.update(textkw)
+
+        if isinstance(valfmt, str):
+            valfmt = matplotlib.ticker.StrMethodFormatter(valfmt)
+
+        texts = []
+        for i in range(data.shape[0]):
+            for j in range(data.shape[1]):
+                kw.update(color='black')
+                text = im.axes.text(j, i, valfmt(data[i, j], None), **kw)
+                texts.append(text)
+
+        return texts
+                
+                
+    x = np.linspace(10, 1000, 10, dtype='int')
+    y = np.linspace(50, 150, 10, dtype='int')
+
+    X, Y = np.meshgrid(x, y)
     
-    ax.scatter(steps, sizes, parallel_times,
-            linewidths=1, alpha=.7,
-            edgecolor='k',
-            s=200,
-            marker='p',
-            label='parallel',
-            c=parallel_times)
+    Z = calc(X, Y, 'sequential')
+    
+    Z1 = calc(X, Y, 'parallel')
 
-    ax.scatter(steps, sizes, sequential_times,
-               linewidths=2, alpha=.9,
-               edgecolor='r',
-               s=200,
-               marker='s',
-               label='sequential',
-               c=sequential_times)
+    def plot_3d():
+        ax = plt.axes(projection='3d')
+        # ax.contour(X, Y, Z, 50, cmap='jet')
+        ax.plot_surface(X, Y, Z1, rstride=1, cstride=1, cmap='inferno', edgecolor='none')
+        ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='plasma', edgecolor='none')
+        ax.set_title('Time = simulate(number of steps, grid size)', fontsize=13)
+        ax.set_xlabel('Number of steps', fontsize=10)
+        ax.set_ylabel('Grid size in cells', fontsize=10)
+        ax.set_zlabel('Time in seconds', fontsize=11)
+        
+        
+    def plot_heatmap():
+        X1 = X[0]
+        pom = []
+        for row in Y:
+            pom.append(row[0])
+        Y1 = np.array(pom)
+        fig, ax = plt.subplots()
+
+        im, cbar = heatmap(Z, X1, Y1, ax=ax, cmap="plasma", cbarlabel="speed in seconds")
+        texts = annotate_heatmap(im, valfmt="{x:.4f} s")
+
+        fig.tight_layout()
+
+
+    # plot_3d()
+    plot_heatmap()
+    
     plt.show()
 
 
 def main():
     test()
+    # fixed_grid()
+
     
 
 if __name__ == '__main__':
