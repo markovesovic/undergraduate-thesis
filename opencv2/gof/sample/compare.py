@@ -4,6 +4,7 @@ import time
 
 import matplotlib.pyplot as plt
 import matplotlib
+from numpy.lib.npyio import load
 
 
 plt.xkcd()
@@ -61,7 +62,7 @@ def generate_times_with_fixed_steps(number_of_steps=10000, start_size=50, end_si
     save_to_file()
     
     
-def plot_with_fixed_steps(number_of_steps=10000, start_size=50, end_size=450, step=10):
+def plot_with_fixed_steps(times=True, number_of_steps=10000, start_size=50, end_size=450, step=10):
     
     grid_sizes = []
     sequential_times = []
@@ -97,7 +98,11 @@ def plot_with_fixed_steps(number_of_steps=10000, start_size=50, end_size=450, st
         plt.xlabel('Grid size(cells)')
         plt.ylabel('Times faster')
     
-    showTimes()
+    if times:
+        showTimes()
+    else:
+        showRatio()
+        
     plt.show()
     
 
@@ -152,7 +157,7 @@ def generate_times_with_fixed_grid(grid_size=100, start_size=100, end_size=10000
 
 
 
-def plot_with_fixed_grid(grid_size=100, start_size=100, end_size=10000, step=100):
+def plot_with_fixed_grid(times=True, grid_size=100, start_size=100, end_size=10000, step=100):
 
     numbers_of_steps = []
     sequential_times = []
@@ -187,15 +192,15 @@ def plot_with_fixed_grid(grid_size=100, start_size=100, end_size=10000, step=100
         plt.xlabel('Grid size(cells)')
         plt.ylabel('Times faster')
         
-    # showRatio()
-    showTimes()
+    if times:
+        showTimes()
+    else:
+        showRatio()
 
     plt.show()
     
 
-
-def test():
-
+def generate_times_for_meshgrid():
     def calc(x, y, algorithm):
         arr_ret = []
         for arr_x, arr_y in zip(x, y):
@@ -207,7 +212,6 @@ def test():
                     cv.gof_simulator(value_y, value_x).parallel('gosper_gun')
                 else:
                     cv.gof_simulator(value_y, value_x).sequential('gosper_gun')
-                # cv.gof_simulator(value_y, value_x).sequential('gosper_gun')
                 t = time.perf_counter() - start
                 values_ret.append(round(t, 3))
             
@@ -215,6 +219,43 @@ def test():
         
         return np.array(arr_ret)
     
+    x = np.linspace(10, 10000, 20, dtype='int')
+    y = np.linspace(50, 450, 20, dtype='int')
+
+    X, Y = np.meshgrid(x, y)
+    
+    Z = calc(X, Y, 'sequential')
+    
+    Z1 = calc(X, Y, 'parallel')
+    
+    with open('X.npy', 'wb') as f:
+        np.save(f, X)
+    with open('Y.npy', 'wb') as f:
+        np.save(f, Y)
+    with open('Z.npy', 'wb') as f:
+        np.save(f, Z)
+    with open('Q.npy', 'wb') as f:
+        np.save(f, Z1)
+    
+    
+def load_mesh_grid_values():
+    X = []
+    Y = []
+    Z = []
+    Z1 = []
+    with open('X.npy', 'rb') as f:
+        X = np.load(f)
+    with open('Y.npy', 'rb') as f:
+        Y = np.load(f)
+    with open('Z.npy', 'rb') as f:
+        Z = np.load(f)
+    with open('Q.npy', 'rb') as f:
+        Z1 = np.load(f)
+    
+    return X, Y, Z, Z1
+    
+    
+def plot_heatmap():
     
     def heatmap(data, row_labels, col_labels, ax=None,
             cbar_kw={}, cbarlabel="", **kwargs):
@@ -248,8 +289,7 @@ def test():
         return im, cbar
 
 
-    def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
-                        threshold=None, **textkw):
+    def annotate_heatmap(im, data=None, valfmt="{x:.2f}", threshold=None, **textkw):
 
         if not isinstance(data, (list, np.ndarray)):
             data = im.get_array()
@@ -259,8 +299,7 @@ def test():
         else:
             threshold = im.norm(data.max())/2.
 
-        kw = dict(horizontalalignment="center",
-                verticalalignment="center")
+        kw = dict(horizontalalignment="center", verticalalignment="center")
         kw.update(textkw)
 
         if isinstance(valfmt, str):
@@ -274,54 +313,48 @@ def test():
                 texts.append(text)
 
         return texts
+    
+    X, Y, Z, Z1 = load_mesh_grid_values()
                 
-                
-    x = np.linspace(10, 1000, 10, dtype='int')
-    y = np.linspace(50, 150, 10, dtype='int')
+    X1 = X[0]
+    pom = []
+    for row in Y:
+        pom.append(row[0])
+    Y1 = np.array(pom)
+    fig, ax = plt.subplots()
 
-    X, Y = np.meshgrid(x, y)
-    
-    Z = calc(X, Y, 'sequential')
-    
-    Z1 = calc(X, Y, 'parallel')
+    im, cbar = heatmap(Z1, X1, Y1, ax=ax, cmap="plasma", cbarlabel="speed in seconds")
+    texts = annotate_heatmap(im, valfmt="{x:.4f} s")
 
-    def plot_3d():
-        ax = plt.axes(projection='3d')
-        # ax.contour(X, Y, Z, 50, cmap='jet')
-        ax.plot_surface(X, Y, Z1, rstride=1, cstride=1, cmap='inferno', edgecolor='none')
-        ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='plasma', edgecolor='none')
-        ax.set_title('Time = simulate(number of steps, grid size)', fontsize=13)
-        ax.set_xlabel('Number of steps', fontsize=10)
-        ax.set_ylabel('Grid size in cells', fontsize=10)
-        ax.set_zlabel('Time in seconds', fontsize=11)
+    fig.tight_layout()
+    
+    plt.show()
+    
+
+def plot_3d():
+    X, Y, Z, Z1 = load_mesh_grid_values()
+    
+    ax = plt.axes(projection='3d')
+    # ax.contour(X, Y, Z, 50, cmap='jet')
+    ax.plot_surface(X, Y, Z1, rstride=1, cstride=1, cmap='inferno', edgecolor='none')
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='plasma', edgecolor='none')
+    ax.set_title('Time = simulate(number of steps, grid size)', fontsize=13)
+    ax.set_xlabel('Number of steps', fontsize=10)
+    ax.set_ylabel('Grid size in cells', fontsize=10)
+    ax.set_zlabel('Time in seconds', fontsize=11)
         
-        
-    def plot_heatmap():
-        X1 = X[0]
-        pom = []
-        for row in Y:
-            pom.append(row[0])
-        Y1 = np.array(pom)
-        fig, ax = plt.subplots()
-
-        im, cbar = heatmap(Z1, X1, Y1, ax=ax, cmap="plasma", cbarlabel="speed in seconds")
-        texts = annotate_heatmap(im, valfmt="{x:.4f} s")
-
-        fig.tight_layout()
-
-
-    # plot_3d()
-    plot_heatmap()
-    
     plt.show()
 
 
 def main():
-    # test()
     # generate_times_with_fixed_steps()
-    # plot_with_fixed_steps()
+    # plot_with_fixed_steps(False)
     # generate_times_with_fixed_grid()
-    plot_with_fixed_grid()
+    # plot_with_fixed_grid(False)
+    
+    # generate_times_for_meshgrid()
+    # plot_3d()
+    plot_heatmap()
 
     
 
