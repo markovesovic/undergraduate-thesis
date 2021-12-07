@@ -9,13 +9,7 @@ import matplotlib
 plt.xkcd()
 
 
-def fixed_steps():
-    
-    number_of_steps = 10000
-    number_of_iterations = 5
-    start_size = 50
-    end_size = 450
-    step = 10
+def generate_times_with_fixed_steps(number_of_steps=10000, start_size=50, end_size=450, step=10, number_of_iterations=3):
     
     parallel_times = []
     sequential_times = []
@@ -26,7 +20,6 @@ def fixed_steps():
         print(f'\n\nGrid size: {grid_size}:\n\n')
         simulator = cv.gof_simulator(grid_size, number_of_steps)
 
-        
         print('Parallel:\n')
         times = []
         for i in range(number_of_iterations):
@@ -41,7 +34,6 @@ def fixed_steps():
         sum /= number_of_iterations
         parallel_times.append(sum)
         
-        
         print('Sequential:\n')
         for i in range(number_of_iterations):
             start = time.perf_counter()
@@ -55,19 +47,37 @@ def fixed_steps():
         sum /= number_of_iterations
         sequential_times.append(sum)
 
-
         grid_sizes.append(grid_size)
 
+    def save_to_file():
+        with open('parallel_times_fixed_step.txt', 'w') as f:
+            for v in parallel_times:
+                f.write(f'{v}\n')
+                
+        with open('sequential_times_fixed_step.txt', 'w') as f:
+            for v in sequential_times:
+                f.write(f'{v}\n')
 
-    print('Parallel times')
-    for (size, t) in zip(grid_sizes, parallel_times): 
-        print(f'{size}: { round(t, 3) }, ', end='')
-        
-    print('\nSequential times')
-    for (size, t) in zip(grid_sizes, sequential_times):
-        print(f'{size}: { round(t, 3) } ', end='')
-
-
+    save_to_file()
+    
+    
+def plot_with_fixed_steps(number_of_steps=10000, start_size=50, end_size=450, step=10):
+    
+    grid_sizes = []
+    sequential_times = []
+    parallel_times = []
+    
+    for i in range(start_size, end_size, step):
+        grid_sizes.append(i)
+    
+    with open('parallel_times_fixed_step.txt', 'r') as f:
+        for line in f:
+            parallel_times.append(float(line))
+    with open('sequential_times_fixed_step.txt', 'r') as f:
+        for line in f:
+            sequential_times.append(float(line))
+    
+    
     def showTimes():
         plt.title(f'Parallel and sequential execution speed for {number_of_steps} steps')
         plt.plot(grid_sizes, sequential_times, '-g', label='Sequential algorithm')
@@ -87,29 +97,19 @@ def fixed_steps():
         plt.xlabel('Grid size(cells)')
         plt.ylabel('Times faster')
     
-    # showRatio()
     showTimes()
-
     plt.show()
-
-
-def fixed_grid():
     
-    grid_size = 100
-    number_of_iterations = 1
-    start_size = 100
-    end_size = 10000
-    step = 1000
+
+def generate_times_with_fixed_grid(grid_size=100, start_size=100, end_size=10000, step=100, number_of_iterations=3):
     
     parallel_times = []
     sequential_times = []
-    numbers_of_steps = []
     
     for step in range(start_size, end_size, step):
         
         print(f'\n\nNumber of step: {step}:\n\n')
         simulator = cv.gof_simulator(grid_size, step)
-
         
         print('Parallel:\n')
         times = []
@@ -125,7 +125,6 @@ def fixed_grid():
         sum /= number_of_iterations
         parallel_times.append(sum)
         
-        
         print('Sequential:\n')
         for _ in range(number_of_iterations):
             start = time.perf_counter()
@@ -140,17 +139,34 @@ def fixed_grid():
         sequential_times.append(sum)
 
 
-        numbers_of_steps.append(step)
+    def save_to_file():
+        with open('parallel_times_fixed_grid.txt', 'w') as f:
+            for v in parallel_times:
+                f.write(f'{v}\n')
+                
+        with open('sequential_times_fixed_grid.txt', 'w') as f:
+            for v in sequential_times:
+                f.write(f'{v}\n')
+
+    save_to_file()
 
 
-    print('Parallel times')
-    for (size, t) in zip(numbers_of_steps, parallel_times): 
-        print(f'{size}: { round(t, 3) }, ', end='')
-        
-    print('\nSequential times')
-    for (size, t) in zip(numbers_of_steps, sequential_times):
-        print(f'{size}: { round(t, 3) } ', end='')
 
+def plot_with_fixed_grid(grid_size=100, start_size=100, end_size=10000, step=100):
+
+    numbers_of_steps = []
+    sequential_times = []
+    parallel_times = []
+    
+    for i in range(start_size, end_size, step):
+        numbers_of_steps.append(i)
+    
+    with open('parallel_times_fixed_grid.txt', 'r') as f:
+        for line in f:
+            parallel_times.append(float(line))
+    with open('sequential_times_fixed_grid.txt', 'r') as f:
+        for line in f:
+            sequential_times.append(float(line))
 
     def showTimes():
         plt.title(f'Parallel and sequential execution speed for {grid_size}x{grid_size} grid')
@@ -175,8 +191,6 @@ def fixed_grid():
     showTimes()
 
     plt.show()
-    
-    
     
 
 
@@ -290,7 +304,7 @@ def test():
         Y1 = np.array(pom)
         fig, ax = plt.subplots()
 
-        im, cbar = heatmap(Z, X1, Y1, ax=ax, cmap="plasma", cbarlabel="speed in seconds")
+        im, cbar = heatmap(Z1, X1, Y1, ax=ax, cmap="plasma", cbarlabel="speed in seconds")
         texts = annotate_heatmap(im, valfmt="{x:.4f} s")
 
         fig.tight_layout()
@@ -303,8 +317,11 @@ def test():
 
 
 def main():
-    test()
-    # fixed_grid()
+    # test()
+    # generate_times_with_fixed_steps()
+    # plot_with_fixed_steps()
+    # generate_times_with_fixed_grid()
+    plot_with_fixed_grid()
 
     
 
