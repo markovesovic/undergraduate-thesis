@@ -1,3 +1,4 @@
+from PIL.Image import NONE
 import numpy as np
 import cv2 as cv
 import time
@@ -255,7 +256,7 @@ def load_mesh_grid_values():
     return X, Y, Z, Z1
     
     
-def plot_heatmap():
+def plot_heatmap(which, min=None, max=None):
     
     def heatmap(data, row_labels, col_labels, ax=None,
             cbar_kw={}, cbarlabel="", **kwargs):
@@ -264,6 +265,7 @@ def plot_heatmap():
             ax = plt.gca()
 
         im = ax.imshow(data, **kwargs)
+        im.set_clim(min, max)
 
         cbar = ax.figure.colorbar(im, ax=ax, **cbar_kw)
         cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
@@ -322,12 +324,51 @@ def plot_heatmap():
         pom.append(row[0])
     Y1 = np.array(pom)
     fig, ax = plt.subplots()
+    
+    res = None
+    
+    if which == 1:
+        res = Z1
+    else:
+        res = Z
 
-    im, cbar = heatmap(Z1, X1, Y1, ax=ax, cmap="plasma", cbarlabel="speed in seconds")
-    texts = annotate_heatmap(im, valfmt="{x:.4f} s")
+    im, cbar = heatmap(res, X1, Y1, ax=ax, cmap="plasma", cbarlabel="speed in seconds")
+    # texts = annotate_heatmap(im, valfmt="{x:.4f} s")
+    texts = annotate_heatmap(im, valfmt="")
 
     fig.tight_layout()
     
+    plt.show()
+    
+def plot_heatmap2():
+    
+    X, Y, Z, Z1 = load_mesh_grid_values()
+    X1 = X[0]
+    pom = []
+    for row in Y:
+        pom.append(row[0])
+    Y1 = np.array(pom)
+    
+    fig, ax = plt.subplots()
+    im = ax.imshow(Z)
+    im.set_clim(0, 10)
+
+    # Show all ticks and label them with the respective list entries
+    ax.set_xticks(np.arange(len(X1)), labels=X1)
+    ax.set_yticks(np.arange(len(Y1)), labels=Y1)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+            rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(Y1)):
+        for j in range(len(X1)):
+            text = ax.text(j, i, "",
+                        ha="center", va="center", color="w")
+
+    ax.set_title("Harvest of local farmers (in tons/year)")
+    fig.tight_layout()
     plt.show()
     
 
@@ -336,8 +377,9 @@ def plot_3d():
     
     ax = plt.axes(projection='3d')
     # ax.contour(X, Y, Z, 50, cmap='jet')
-    ax.plot_surface(X, Y, Z1, rstride=1, cstride=1, cmap='inferno', edgecolor='none')
-    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='plasma', edgecolor='none')
+    # ax.plot_surface(X, Y, Z1, rstride=1, cstride=1, cmap='winter', edgecolor='none')
+    # ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='hot', edgecolor='none')
+    ax.plot_surface(X, Y, Z1, rstride=1, cstride=1, cmap='turbo', edgecolor='none')
     ax.set_title('Time = simulate(number of steps, grid size)', fontsize=13)
     ax.set_xlabel('Number of steps', fontsize=10)
     ax.set_ylabel('Grid size in cells', fontsize=10)
@@ -350,11 +392,11 @@ def main():
     # generate_times_with_fixed_steps()
     # plot_with_fixed_steps(False)
     # generate_times_with_fixed_grid()
-    # plot_with_fixed_grid(False)
+    # plot_with_fixed_grid(True)
     
     # generate_times_for_meshgrid()
     # plot_3d()
-    plot_heatmap()
+    plot_heatmap(2, 0, 30)
 
     
 
