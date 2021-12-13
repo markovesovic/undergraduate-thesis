@@ -1,7 +1,6 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Bachelor's Degree Thesis - Game of Life
----
 
 Different ways of implementing of [John Conway](http://en.wikipedia.org/wiki/John_Horton_Conway)'s [**Game of Life**](http://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
 
