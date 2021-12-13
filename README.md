@@ -2,7 +2,10 @@
 
 # Bachelor's Degree Thesis - Game of Life
 
-Different ways of implementing of [John Conway](http://en.wikipedia.org/wiki/John_Horton_Conway)'s [**Game of Life**](http://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
+Comparing performance of two different C++ implementations of [John Conway](http://en.wikipedia.org/wiki/John_Horton_Conway)'s [**Game of Life**](http://en.wikipedia.org/wiki/Conway%27s_Game_of_Life). 
+- Trivial sequential implementation done by looping through whole grid and calculating each cell's value one at a time
+- Parallel implementation done by splitting grid into smaller subgrids, and calculating multiple cell's value at the same time
+
 
 ## OpenCV
 
