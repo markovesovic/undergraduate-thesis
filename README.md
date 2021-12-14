@@ -19,3 +19,8 @@ Comparing performance of two different C++ implementations of [John Conway](http
 - Source files written in C++ 
 - Transformed in python module via [pybind11](https://pypi.org/project/pybind11/) bindings
 - Slower conversion from C++ to python numpy arrays
+
+## Visualization
+
+- Visualization done in python with matplotlib
+- Using generated data matrices (as numpy arrays)
