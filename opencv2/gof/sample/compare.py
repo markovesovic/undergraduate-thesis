@@ -1,11 +1,9 @@
-from PIL.Image import NONE
 import numpy as np
 import cv2 as cv
 import time
 
 import matplotlib.pyplot as plt
 import matplotlib
-from numpy.lib.npyio import load
 
 
 plt.xkcd()

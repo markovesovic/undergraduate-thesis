@@ -1,3 +1,3 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-# Pybind11 implementation
+# Pybind11 implementation of Game of Life
