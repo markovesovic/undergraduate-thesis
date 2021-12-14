@@ -46,8 +46,8 @@ python /gof/sample/compare.py
 ```
 - Set of few functions for visualization of comparison between algorithms
 - Couple of examples what you can make:
-> <img src="Generated%20plots/Figure_1.png" width="600">
+>![first_image](Generated%20plots/Figure_1.png)
 >
-> <img src="Generated%20plots/Figure_10.png" width="600">
+>![second_image](Generated%20plots/Figure_10.png)
 >
-> <img src="Generated%20plots/Figure_14.png" width="600">
+>![third_image](Generated%20plots/Figure_14.png)
