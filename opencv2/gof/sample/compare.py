@@ -6,7 +6,44 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 
-plt.xkcd()
+# plt.xkcd()
+
+def box_plot(number_of_steps=10000, start_size=50, end_size=200, step=10, number_of_iterations=5):
+    sequential_times = []
+    parallel_times = []
+    grid_sizes = []
+
+    for grid_size in range(start_size, end_size, step):
+        
+        print(f'\n\nGrid size: {grid_size}:\n\n')
+        simulator = cv.gof_simulator(grid_size, number_of_steps)
+
+        # print('Parallel:\n')
+        # times = []
+        # for i in range(number_of_iterations):
+        #     start = time.perf_counter()
+        #     _ = simulator.parallel('gosper_gun')
+        #     end = time.perf_counter()
+        #     times.append(end - start)
+            
+        # parallel_times.append(times)
+        
+        print('Sequential:\n')
+        times = []
+        for i in range(number_of_iterations):
+            start = time.perf_counter()
+            _ = simulator.sequential('gosper_gun')
+            end = time.perf_counter()
+            times.append(end - start)
+
+        sequential_times.append(times)
+
+        grid_sizes.append(grid_size)
+
+    data = sequential_times
+    print(data)
+    plt.boxplot(data, labels=grid_sizes)
+    plt.show()
 
 
 def generate_times_with_fixed_steps(number_of_steps=10000, start_size=50, end_size=450, step=10, number_of_iterations=3):
@@ -394,7 +431,8 @@ def main():
     
     # generate_times_for_meshgrid()
     # plot_3d()
-    plot_heatmap(2, 0, 30)
+    # plot_heatmap(2, 0, 30)
+    box_plot()
 
     
 
