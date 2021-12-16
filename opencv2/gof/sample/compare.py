@@ -8,7 +8,7 @@ import matplotlib
 
 # plt.xkcd()
 
-def box_plot(number_of_steps=10000, start_size=50, end_size=200, step=10, number_of_iterations=5):
+def generate_for_box_plot(number_of_steps=10000, start_size=50, end_size=450, step=10, number_of_iterations=10):
     sequential_times = []
     parallel_times = []
     grid_sizes = []
@@ -18,15 +18,15 @@ def box_plot(number_of_steps=10000, start_size=50, end_size=200, step=10, number
         print(f'\n\nGrid size: {grid_size}:\n\n')
         simulator = cv.gof_simulator(grid_size, number_of_steps)
 
-        # print('Parallel:\n')
-        # times = []
-        # for i in range(number_of_iterations):
-        #     start = time.perf_counter()
-        #     _ = simulator.parallel('gosper_gun')
-        #     end = time.perf_counter()
-        #     times.append(end - start)
+        print('Parallel:\n')
+        times = []
+        for i in range(number_of_iterations):
+            start = time.perf_counter()
+            _ = simulator.parallel('gosper_gun')
+            end = time.perf_counter()
+            times.append(end - start)
             
-        # parallel_times.append(times)
+        parallel_times.append(times)
         
         print('Sequential:\n')
         times = []
@@ -40,9 +40,59 @@ def box_plot(number_of_steps=10000, start_size=50, end_size=200, step=10, number
 
         grid_sizes.append(grid_size)
 
-    data = sequential_times
-    print(data)
-    plt.boxplot(data, labels=grid_sizes)
+    arr = []
+
+    for arr1, arr2 in zip(sequential_times, parallel_times):
+
+        local_arr = []
+        for elem1 in arr1:
+            for elem2 in arr2:
+                local_arr.append(elem1 / elem2)
+
+        arr.append(local_arr)
+        
+    print(arr)
+    # plt.boxplot(arr)
+    # plt.show()
+    def save_to_file():
+        with open('ratios.txt', 'w') as f:
+            for a in arr:
+                for v in a:
+                    f.write(f'{v} ')
+                f.write('\n')
+
+    save_to_file()
+
+
+def box_plot():
+    data = []
+    with open('ratios.txt', 'rb') as f:
+        for line in f:
+            values_string = (str(line)).split(' ')
+
+            values = []
+
+            for v in values_string:
+                try:
+                    values.append(float(v))
+                except:
+                    pass
+
+            data.append(values)
+    
+    grid_sizes = []
+    for i in range(50, 450, 10):
+        grid_sizes.append(i)
+        
+    print('data: ', data)
+
+    print('sizes: ', grid_sizes)
+    
+    # print(data)
+    plt.boxplot(data, notch=True, meanline=True, labels=grid_sizes)
+    plt.xlabel('Grid size')
+    plt.ylabel('Times faster')
+    plt.title('Ratios')
     plt.show()
 
 
@@ -432,9 +482,10 @@ def main():
     # generate_times_for_meshgrid()
     # plot_3d()
     # plot_heatmap(2, 0, 30)
+    # generate_for_box_plot()
     box_plot()
 
-    
+   
 
 if __name__ == '__main__':
     main()
