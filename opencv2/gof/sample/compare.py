@@ -8,7 +8,7 @@ import matplotlib
 
 # plt.xkcd()
 
-def generate_for_box_plot(number_of_steps=10000, start_size=50, end_size=450, step=10, number_of_iterations=10):
+def generate_for_box_plot(number_of_steps=10000, start_size=300, end_size=450, step=100, number_of_iterations=15):
     sequential_times = []
     parallel_times = []
     grid_sizes = []
@@ -81,7 +81,7 @@ def box_plot():
             data.append(values)
     
     grid_sizes = []
-    for i in range(50, 450, 10):
+    for i in range(300, 450, 100):
         grid_sizes.append(i)
         
     print('data: ', data)
